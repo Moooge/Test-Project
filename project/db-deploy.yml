@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db-deploy   
+  labels:
+    app: db-deploy
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: db-deploy
+  template:
+    metadata:
+      labels:
+        app: db-deploy
+    spec:
+      containers:
+      - name: db-deploy
+        image: postgres:14.5-alpine
+        ports:
+        - containerPort: 5432
+        env:
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: db-secret-2
+              key: username
+        - name: DB_PASS
+          valueFrom:
+            secretKeyRef:
+              name: db-secret-2
+              key: password
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: db-secret-2
+              key: database

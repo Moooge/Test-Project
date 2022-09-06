@@ -1,0 +1,49 @@
+---
+  - name: "test-project-playbook"
+    hosts: localhost
+    connection: local 
+    tasks:
+
+    - name: "socks shop microservice"
+      shell: "kubectl create -f socks-shop.yml"
+      register: "output"
+
+    - name: "creating my webapp"
+      shell: "kubectl create -f nginx-deploy.yml"
+      register: "output"
+
+    - name: "creating service for webapp"
+      shell: "kubectl create -f nginx-service.yml"
+      register: "output"
+
+    - name: "creating db"
+      shell: "kubectl create -f db-deploy.yml"
+      register: "output"
+
+    - name: "creating service for db"
+      shell: "kubectl create -f db-service.yml"
+      register: "output"
+
+    - name: "adding prometheus helm chart"
+      shell: "helm repo add prometheus-community \
+              https://prometheus-community.github.io/helm-charts"
+      register: "output"  
+
+    - name: "update helm repo"
+      shell: "helm repo update"
+      register: "output"
+
+    - name: "installing helm for prometheus"
+      shell: "helm install monitoring \
+              prometheus-community/kube-prometheus-stack \
+              --version 39.11.0 \
+              --namespace monitoring \
+              --create-namespace"
+      register: "output"  
+
+
+    - name: "port forwarding prometheus"
+      shell: "kubectl port-forward \
+              svc/monitoring-kube-prometheus-prometheus 9090 \
+              -n monitoring"
+      register: "output"  
